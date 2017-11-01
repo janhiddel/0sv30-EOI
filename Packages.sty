@@ -1,0 +1,49 @@
+\ProvidesPackage{Packages}
+
+\usepackage[utf8]{inputenc}
+\usepackage{tabularx} % extra features for tabular environment
+\usepackage{amsmath}  % improve math presentation
+\usepackage{graphicx} % takes care of graphic including machinery
+\usepackage[margin=1in,letterpaper]{geometry} % decreases margins
+\usepackage{cite} % takes care of citations
+\usepackage[final]{hyperref} % adds hyper links inside the generated pdf file
+\usepackage[english]{babel} %English
+\usepackage{enumitem}
+\usepackage{tocstyle}
+\usepackage{tocbibind}
+
+\usepackage{datatool,environ,newfile}
+
+      \NewEnviron{sortEnvironment}[1]{{%
+        \let\par\DTLpar% Cannot include \par in content, so replace \par with \DTLpar
+        \addtostream{sortOutput}{"#1","\BODY"}% Write section content to output file
+      }}
+
+      \AtBeginDocument{%
+        \newoutputstream{sortOutput}% New output file
+        \openoutputfile{sortContent.csv}{sortOutput}% Open output file
+      }
+      \AtEndDocument{%
+        \closeoutputstream{sortOutput}% Close output file
+        \DTLloaddb[
+            noheader,
+            keys={Title,Content}]
+          {sortedSections}{sortContent.csv}% Load stored content
+        \dtlsort{Title}{sortedSections}{\dtlcompare}% Sort stored content
+        \DTLforeach{sortedSections}{\Title=Title,\Content=Content}
+          {\section{\Title} \Content}% Print all content
+      }
+
+\setlist[itemize]{noitemsep}
+
+\hypersetup{
+	colorlinks=true,       % false: boxed links; true: colored links
+	linkcolor=black,        % color of internal links
+	citecolor=blue,        % color of links to bibliography
+	filecolor=magenta,     % color of file links
+	urlcolor=black         
+}
+
+\usetocstyle{standard}
+
+\usepackage{titlesec}
